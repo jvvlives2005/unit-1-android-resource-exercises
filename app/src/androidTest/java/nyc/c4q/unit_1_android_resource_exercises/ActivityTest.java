@@ -5,9 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.TouchUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,8 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import junit.framework.Assert;
-
-import org.w3c.dom.Text;
 
 public class ActivityTest extends ActivityInstrumentationTestCase2<ResourceExercisesActivity> {
 
@@ -32,7 +28,7 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<ResourceExerc
     protected void setUp() throws Exception {
         super.setUp();
         mActivity = getActivity(); // This will actually start the activity
-        getInstrumentation().waitForIdleSync(); // Wait for animations to complete and acitvity enter idle state
+        getInstrumentation().waitForIdleSync(); // Wait for animations to complete and activity enter idle state
         // Setup logic goes here
     }
 
@@ -42,20 +38,11 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<ResourceExerc
         int helloWorldIdentifier = resources.getIdentifier("hello_world", "string", mActivity.getPackageName());
         int imSorryDaveIdentifier = resources.getIdentifier("im_sorry_dave", "string", mActivity.getPackageName());
 
-        System.out.println(helloWorldIdentifier);
+        assertTrue("hello_world not found", helloWorldIdentifier > 0);
+        assertEquals("Hello world!", resources.getString(helloWorldIdentifier));
 
-        if (helloWorldIdentifier > 0) {
-            Assert.assertEquals("Hello world!", resources.getString(helloWorldIdentifier));
-        } else {
-            fail("hello_world not found");
-        }
-
-        if (imSorryDaveIdentifier > 0) {
-            Assert.assertEquals("I'm sorry Dave, I'm afraid I can't let you do that.",
-                    resources.getString(imSorryDaveIdentifier));
-        } else {
-            fail("im_sorry_dave not found");
-        }
+        assertTrue("im_sorry_dave not found", imSorryDaveIdentifier > 0);
+        assertEquals("I'm sorry Dave, I'm afraid I can't let you do that.", resources.getString(imSorryDaveIdentifier));
     }
 
     // TODO internationalization
@@ -79,8 +66,10 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<ResourceExerc
             bm = ((BitmapDrawable) resources.getDrawable(drawableRedIdentifier, null)).getBitmap();
         }
 
-        Assert.assertEquals("actual height value: " + bm.getHeight(), 40, bm.getHeight());
-        Assert.assertEquals("actual width value: " + bm.getWidth(), 40, bm.getWidth());
+        float deviceDensity = mActivity.getResources().getDisplayMetrics().density;
+
+        Assert.assertEquals("actual height value: " + bm.getHeight(), (deviceDensity * 20), (float)bm.getHeight());
+        Assert.assertEquals("actual width value: " + bm.getWidth(), (deviceDensity * 20), (float)bm.getWidth());
         Assert.assertEquals(0xFFFF0000, bm.getPixel(0, 0));
     }
 
@@ -102,10 +91,11 @@ public class ActivityTest extends ActivityInstrumentationTestCase2<ResourceExerc
             bm = ((BitmapDrawable) resources.getDrawable(drawableBlueIdentifier, null)).getBitmap();
         }
 
-        Assert.assertEquals(40, bm.getHeight());
-        Assert.assertEquals(40, bm.getWidth());
-        Assert.assertEquals(0xFF0000FF, bm.getPixel(0, 0));
+        float deviceDensity = mActivity.getResources().getDisplayMetrics().density;
 
+        Assert.assertEquals((deviceDensity * 20), (float)bm.getHeight());
+        Assert.assertEquals((deviceDensity * 20), (float)bm.getWidth());
+        Assert.assertEquals(0xFF0000FF, bm.getPixel(0, 0));
     }
 
     public void testParentLayout() {
